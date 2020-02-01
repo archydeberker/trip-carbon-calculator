@@ -18,7 +18,7 @@ def distance_matrix():
 
 def test_loading_data_with_header():
 
-    with open('test_data/data_with_header.xlsx', 'rb') as f:
+    with open('tests/test_data/data_with_header.xlsx', 'rb') as f:
         data = f.read()
 
     df = actions.parse_uploaded_file(data)
