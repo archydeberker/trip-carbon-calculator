@@ -3,18 +3,66 @@
 <head>
     <meta charset="UTF-8">
     <title>Carbon API</title>
-        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.8.0/css/bulma.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.8.0/css/bulma.min.css">
     <script defer src="https://use.fontawesome.com/releases/v5.3.1/js/all.js"></script>
+
 </head>
-<form action="/api/handle-upload" method="post" enctype="multipart/form-data">
-    <br>
-    Choose a file for upload. It must be a CSV or Excel file with two columns: From and To.
-    <br>
-    <input type="file" name="data">
-    <br>
-    <input type="submit" value="Calculate">
-</form>
 <body>
+<section class="section">
+    <div class="container">
+        <div class="columns is-vcentered is-centered">
+            <div class="column is-one-quarter">
+                <p class="bd-notification is-primary">
+                <h1 class="title">
+                    Trip Carbon Calculator
+                </h1>
+                </p>
+                <p class="subtitle">
+                    Estimate carbon emissions for trips between locations, in bulk!
+                </p>
+            </div>
+            <div class="column is-half">
+                <div class="container">
+                    <form action="/api/handle-upload" method="post" enctype="multipart/form-data">
+                        <br>
+                        Choose a file for upload. It must be an Excel file with two columns: <em>from</em>
+                        and <em>to</em>.
+                        <br>
+
+                        <div id='file-js-example' class="file">
+                            <label class="file-label">
+                                <input class="file-input" type="file" name="data">
+                                <span class="file-cta">
+                                  <span class="file-icon">
+                                    <i class="fas fa-upload"></i>
+                                  </span>
+                                  <span class="file-label">
+                                    Choose a file…
+                                  </span>
+                                </span>
+                                <span class="file-name">
+                                No file selected
+                            </span>
+                            </label>
+                        </div>
+                        <br>
+                        <input class="button is-primary" type="submit" value="Submit">
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<script>
+  const fileInput = document.querySelector('#file-js-example input[type=file]');
+  fileInput.onchange = () => {
+    if (fileInput.files.length > 0) {
+      const fileName = document.querySelector('#file-js-example .file-name');
+      fileName.textContent = fileInput.files[0].name;
+    }
+  }
+</script>
 
 </body>
 </html>
