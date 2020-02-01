@@ -3,7 +3,6 @@ import os
 import pandas as pd
 
 KEY = os.getenv('GOOGLE_MAPS_API_KEY')
-print(KEY)
 gmaps = googlemaps.Client(key=KEY)
 
 
