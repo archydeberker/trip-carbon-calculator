@@ -13,7 +13,8 @@
     <div class="container">
         <div class="columns is-vcentered is-centered">
             <div class="column is-half">
-                <figure class="image is-centered" style="width:300px; margin: auto 0; display: None">
+                <figure class="image is-centered"
+                        style="width:300px; margin: auto 0; display: None">
                     <img src="/static/assets/logo_transparent.png">
 
                 </figure>
@@ -23,9 +24,9 @@
         <div class="columns is-centered">
             <div class="column is-one-quarter">
                 <p class="bd-notification is-primary">
-                                    <h1 class="title">
-                                        Trip Carbon Calculator
-                                    </h1>
+                <h1 class="title">
+                    Trip Carbon Calculator
+                </h1>
                 </p>
                 <p class="subtitle">
                     Estimate carbon emissions for trips between locations, in bulk!
@@ -59,6 +60,28 @@
                 </form>
             </div>
         </div>
+    </div>
+</section>
+
+<section>
+    <div class="container">
+        {% if error %}
+
+        <article class="message is-danger">
+            <div class="message-header">
+                <p>{{ error.title }}</p>
+            </div>
+            <div class="message-body">
+                {{ error.message }}
+                <br>
+                 <article class="message">
+                      <div class="message-body">
+                {{ error.details }}
+                      </div>
+                 </article>
+            </div>
+        </article>
+        {% endif %}
     </div>
 </section>
 
