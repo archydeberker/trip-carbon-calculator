@@ -31,7 +31,7 @@ def add_distances_to_df(df, distance_list, column_name='distances by car (km)'):
     return df
 
 
-def add_times_to_df(df, distance_list, column_name='time by car (hours'):
+def add_times_to_df(df, distance_list, column_name='time by car (hours)'):
     all_times_in_hrs = [item['duration']['value'] / 3600
                            for item in distance_list]
 

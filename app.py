@@ -1,8 +1,3 @@
-import os
-
-import xlrd
-from werkzeug.exceptions import InternalServerError
-
 import actions
 from flask import Flask, request, render_template, url_for, redirect, send_file, after_this_request, \
     jsonify
@@ -36,13 +31,17 @@ def handle_upload():
     try:
         data = request.files['data']
 
-        df = actions.parse_uploaded_file(data)
+        original_df = actions.parse_uploaded_file(data)
 
-        df = google.add_trip_data_to_dataframe(df)
+        df = google.add_trip_data_to_dataframe(original_df.copy())
+
+        output_df = google.combine_with_original_dataframe(original_df, df)
+
+        assert len(output_df) == len(original_df)
 
         temp = tempfile.NamedTemporaryFile(suffix='.xls')
 
-        df.to_excel(temp.name)
+        output_df.to_excel(temp.name, index=False)
 
     except Exception as e:
         raise e
