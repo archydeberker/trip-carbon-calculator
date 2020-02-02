@@ -21,9 +21,13 @@ def calculate_co2(distance_in_km):
 
 
 def calculate_flight_equivalent(co2):
-    """Figures for a transatlantic flight from https://www.carbonindependent.org/22.html"""
+    """
+    Emissions figures for a transatlantic flight from https://www.carbonindependent.org/22.html.
+
+    Flight figures: https://www.flight-durations.com/London-to-New-York
+    """
     kg_co2_per_hour = 90
-    hr_per_flight = 6.5  # Reasonable based on my experience
+    hr_per_flight = 8  # London to NYC
 
     co2_per_flight = kg_co2_per_hour*hr_per_flight
 

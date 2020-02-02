@@ -55,5 +55,5 @@ def add_carbon_estimates_to_df(df, distance_column_name='distances by car (km)',
 
 def add_flight_equivalent_to_df(df, emissions_column_name='emissions (kg CO2)',
                                 flight_column_name='transatlantic flight equivalents (flights)'):
-    df[emissions_column_name] = df[flight_column_name].apply(co2.calculate_flight_equivalent)
+    df[flight_column_name] = df[emissions_column_name].apply(co2.calculate_flight_equivalent)
     return df
