@@ -46,7 +46,7 @@ def handle_upload():
 
         temp = tempfile.NamedTemporaryFile(suffix='.xls')
 
-        output_df.to_excel(temp.name)
+        output_df.to_excel(temp.name, index=False)
 
     except Exception as e:
         raise e
