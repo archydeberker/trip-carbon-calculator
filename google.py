@@ -32,6 +32,7 @@ def add_trip_data_to_dataframe(df, factorize=True):
         exploded_df = actions.add_distances_to_df(exploded_df, distance_list)
         exploded_df = actions.add_times_to_df(exploded_df, distance_list)
         exploded_df = actions.add_carbon_estimates_to_df(exploded_df)
+        exploded_df = actions.add_flight_equivalent_to_df(exploded_df)
         out.append(exploded_df)
 
     return pd.concat(out)
