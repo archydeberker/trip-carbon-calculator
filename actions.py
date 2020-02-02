@@ -1,23 +1,30 @@
 import pandas as pd
 import co2
+import exceptions
+import numpy as np
 
 
 def parse_uploaded_file(data):
     columns = ['from', 'to']
+    try:
+        df = pd.read_excel(data, columns=columns)
+        df.columns = df.columns.str.lower()
+    except Exception as e:
+        print(e)
+        raise exceptions.InvalidFile(str(e))
 
-    df = pd.read_excel(data, columns=columns)
-
-    df.columns = df.columns.str.lower()
-
+    if not np.array_equal(df.columns, ['from', 'to']):
+        raise exceptions.InvalidFile('''
+            Please make sure your excel format has two columns 'from' and 'to'!
+            ''')
     return df
 
 
-def add_distances_to_df(df, distance_matrix, column_name='distances by car (km)'):
-    # Returned object is organized by FROM, with each element in the reponse corresponding to TO
-    # This means that for the simple DdB case we need to format as a column
+def add_distances_to_df(df, distance_list, column_name='distances by car (km)'):
 
-    all_distances_in_km = [row['elements'][0]['distance']['value'] / 1000
-                           for row in distance_matrix['rows']]
+    print(distance_list)
+    all_distances_in_km = [item['distance']['value'] / 1000
+                           for item in distance_list]
 
     assert len(all_distances_in_km) == len(df)
     df[column_name] = all_distances_in_km
@@ -25,9 +32,10 @@ def add_distances_to_df(df, distance_matrix, column_name='distances by car (km)'
     return df
 
 
-def add_times_to_df(df, distance_matrix, column_name='time by car (hours'):
-    all_times_in_hrs = [row['elements'][0]['duration']['value'] / 3600
-                 for row in distance_matrix['rows']]
+def add_times_to_df(df, distance_list, column_name='time by car (hours'):
+    all_times_in_hrs = [item['duration']['value'] / 3600
+                           for item in distance_list]
+
     assert len(all_times_in_hrs) == len(df)
     df[column_name] = all_times_in_hrs
 

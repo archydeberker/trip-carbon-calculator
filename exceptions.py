@@ -15,8 +15,8 @@ class InvalidFile(Exception):
         rv = dict(self.payload or ())
         rv['title'] = 'Invalid file upload'
         rv['message'] = '''
-        It looks like you have uploaded a file which is not a valid Excel file. If you're into computers,
-        see the error raised below!
+        It looks like you have uploaded a file which is not valid. See the error message
+        below for more details.
         '''
 
         rv['details'] = self.message
