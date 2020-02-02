@@ -22,7 +22,6 @@ def parse_uploaded_file(data):
 
 def add_distances_to_df(df, distance_list, column_name='distances by car (km)'):
 
-    print(distance_list)
     all_distances_in_km = [item['distance']['value'] / 1000
                            for item in distance_list]
 

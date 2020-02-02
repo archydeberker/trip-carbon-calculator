@@ -8,9 +8,14 @@ KEY = os.getenv('GOOGLE_MAPS_API_KEY')
 gmaps = googlemaps.Client(key=KEY)
 
 
+def get_distance_matrix_for_row(row):
+    return gmaps.distance_matrix(row['from'], row['to'])
+
+
 def get_distances(df, factorize=True):
 
     # TODO add handling of multiple modes of transport
+    # TODO turn off factorization
     factorized_df = group_queries(df)
 
     # Because the keys in the distance matrices that are returned don't exactly match
@@ -18,7 +23,7 @@ def get_distances(df, factorize=True):
     # then combine our df's again
     out = []
     for _, row in factorized_df.iterrows():
-        distance_matrix = gmaps.distance_matrix(row['from'], row['to'])
+        distance_matrix = get_distance_matrix_for_row(row)
 
         # We now need to explode the factorized df to add back in the values
         exploded_df = pd.DataFrame(row).T.explode('from').explode('to')
@@ -27,7 +32,7 @@ def get_distances(df, factorize=True):
         exploded_df = actions.add_distances_to_df(exploded_df, distance_list)
         out.append(exploded_df)
 
-    return pd.DataFrame(out)
+    return pd.concat(out)
 
 
 def unpack_distance_mtx_rows(distance_matrix):
