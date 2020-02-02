@@ -5,7 +5,7 @@ def calculate_co2(distance_in_km):
     Source Data is the UK Government Vehicle Licensing Statistics;
     https://www.gov.uk/government/statistics/vehicle-licensing-statistics-2018
 
-    Specificallym, I used the breakdown of cars by estimated emissions
+    Specifically, we used the breakdown of cars by estimated emissions
     https://assets.publishing.service.gov.uk/government/uploads/system/uploads/
     attachment_data/file/800513/veh0206.ods
 
