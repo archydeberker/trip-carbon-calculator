@@ -12,7 +12,7 @@ def get_distance_matrix_for_row(row):
     return gmaps.distance_matrix(row['from'], row['to'])
 
 
-def get_distances(df, factorize=True):
+def add_trip_data_to_dataframe(df, factorize=True):
 
     # TODO add handling of multiple modes of transport
     # TODO turn off factorization
@@ -30,6 +30,8 @@ def get_distances(df, factorize=True):
         distance_list = unpack_distance_mtx_rows(distance_matrix)
 
         exploded_df = actions.add_distances_to_df(exploded_df, distance_list)
+        exploded_df = actions.add_times_to_df(exploded_df, distance_list)
+        exploded_df = actions.add_carbon_estimates_to_df(exploded_df)
         out.append(exploded_df)
 
     return pd.concat(out)
@@ -100,5 +102,5 @@ def group_queries(df):
 
 if __name__ == '__main__':
     df = pd.DataFrame()
-    print(get_distances())
+    print(add_trip_data_to_dataframe())
 

@@ -20,7 +20,7 @@ def distance_matrix_unfactorized():
 @pytest.fixture(scope='module')
 def distance_df_factorized():
     """There's no equivalent to the raw mtx in the factorized version"""
-    yield google.get_distances(df_with_factors)
+    yield google.add_trip_data_to_dataframe(df_with_factors)
 
 
 def test_loading_data_with_header():
@@ -76,10 +76,22 @@ class TestCompositeQueries:
         assert np.isclose(df[key].iloc[1], co2.calculate_co2(184), atol=.5)
 
 
-# def test_grouping_of_queries_does_not_affect_df(distance_df_factorized):
-#     grouped_df = google.group_queries(df_with_factors)
-#     pd.testing.assert_frame_equal(grouped_df.explode('from').explode('to').reset_index(drop=True), df)
-#
-#
-# def test_grouping_of_queries_does_not_affect_results():
-#     dist
+class TestEndToEnd:
+    # TODO: This will fail if travel options between locations change. We need to find a better way of
+    # handling this
+    def test_multiplexed_file_matches_expected(self):
+        with open('tests/test_data/data_with_multiplex_big.xlsx', 'rb') as f:
+            data = f.read()
+
+        df = actions.parse_uploaded_file(data)
+        processed_df = google.add_trip_data_to_dataframe(df)
+
+        with open('tests/test_data/data_with_multiplex_big_processed.xlsx', 'rb') as f:
+            data = f.read()
+
+        expected_df = pd.read_excel(data)
+
+        pd.testing.assert_frame_equal(processed_df.reset_index(drop=True),
+                                      expected_df.reset_index(drop=True),
+                                      check_column_type=False,
+                                      check_frame_type=False)

@@ -7,7 +7,7 @@ import actions
 from flask import Flask, request, render_template, url_for, redirect, send_file, after_this_request, \
     jsonify
 import tempfile
-
+import traceback
 import exceptions
 import google
 
@@ -26,6 +26,7 @@ def handle_invalid_usage(e):
 
 @app.errorhandler(Exception)
 def handle_unknown_error(e):
+    app.logger.warning(traceback.format_exc())
     error = exceptions.UnknownError(str(e), e.args)
     return render_template('file_upload.html', error=error.to_dict())
 
@@ -37,11 +38,7 @@ def handle_upload():
 
         df = actions.parse_uploaded_file(data)
 
-        distance_matrix = google.get_distances(df)
-
-        df = actions.add_distances_to_df(df, distance_matrix)
-        df = actions.add_times_to_df(df, distance_matrix)
-        df = actions.add_carbon_estimates_to_df(df)
+        df = google.add_trip_data_to_dataframe(df)
 
         temp = tempfile.NamedTemporaryFile(suffix='.xls')
 
