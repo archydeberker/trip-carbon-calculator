@@ -2,47 +2,49 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Carbon API</title>
+    <title>Route Carbon Calculator</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.8.0/css/bulma.min.css">
     <script defer src="https://use.fontawesome.com/releases/v5.3.1/js/all.js"></script>
 
 </head>
 <body>
 
-<section class="section">
-    <div class="container">
-        <div class="columns is-vcentered is-centered">
-            <div class="column is-half">
-                <figure class="image is-centered"
-                        style="width:300px; margin: auto 0; display: None">
-                    <img src="/static/assets/logo_transparent.png">
+<section class="hero">
+    <div class="hero-body">
+        <div class="container">
+            <div class="columns is-vcentered is-centered">
+                <div class="column is-half">
+                    <figure class="image is-centered"
+                            style="width:300px; margin: auto 0; display: None">
+                        <img src="/static/assets/logo_transparent.png">
 
-                </figure>
+                    </figure>
+                </div>
+
             </div>
+            <div class="columns is-centered">
+                <div class="column is-one-quarter">
+                    <p class="bd-notification is-primary">
+                    <h1 class="title">
+                        Trip Carbon Calculator
+                    </h1>
+                    </p>
+                    <p class="subtitle">
+                        Estimate carbon emissions for trips between locations, in bulk!
+                    </p>
+                </div>
+                <div class="column is-half">
+                    <form action="/api/handle-upload" method="post" enctype="multipart/form-data">
+                        Choose a file for upload. It must be an Excel file with two columns:
+                        <em>from</em>
+                        and <em>to</em>. Each row should contain a single trip, and every cell
+                        should contain an location that is findable on Google Maps.
+                        <br>
 
-        </div>
-        <div class="columns is-centered">
-            <div class="column is-one-quarter">
-                <p class="bd-notification is-primary">
-                <h1 class="title">
-                    Trip Carbon Calculator
-                </h1>
-                </p>
-                <p class="subtitle">
-                    Estimate carbon emissions for trips between locations, in bulk!
-                </p>
-            </div>
-            <div class="column is-half">
-                <form action="/api/handle-upload" method="post" enctype="multipart/form-data">
-                    Choose a file for upload. It must be an Excel file with two columns:
-                    <em>from</em>
-                    and <em>to</em>.
-                    <br>
-
-                    <div id='file-js-example' class="file">
-                        <label class="file-label">
-                            <input class="file-input" type="file" name="data">
-                            <span class="file-cta">
+                        <div id='file-js-example' class="file">
+                            <label class="file-label">
+                                <input class="file-input" type="file" name="data">
+                                <span class="file-cta">
                                   <span class="file-icon">
                                     <i class="fas fa-upload"></i>
                                   </span>
@@ -50,14 +52,15 @@
                                     Choose a file…
                                   </span>
                                 </span>
-                            <span class="file-name">
+                                <span class="file-name">
                                 No file selected
                             </span>
-                        </label>
-                    </div>
-                    <br>
-                    <input class="button is-primary" type="submit" value="Submit">
-                </form>
+                            </label>
+                        </div>
+                        <br>
+                        <input class="button is-primary" type="submit" value="Submit">
+                    </form>
+                </div>
             </div>
         </div>
     </div>
@@ -93,30 +96,34 @@
             <div class="column is-three-quarters">
                 <h1 class="subtitle"> How it works</h1>
                 <p> We use the Google Maps API to figure out the distance and duration
-                    of travel between each of the points you upload in your spreadsheet.</p><br>
+                    of travel between each of the points you upload in your spreadsheet.</p>
 
-                  <p>  We then multiply them by the average carbon intensity per km of
-                    car travel in the UK.</p> <br>
+                <p> We then multiply them by the average carbon intensity per km of
+                    car travel in the UK.</p>
 
                 <p>And just for fun, we add in the number of translatlantic flights that
-                    each journey is equivalent to.</p><br>
-
-        </div>
-    </div>
-    <div class="container">
-        <div class="columns is-centered">
-            <div class="column is-three-quarters">
-                <h1 class="subtitle"> How we calculate carbon emissions</h1>
-                <p> The data for average car emissions comes from <a href="https://www.gov.uk/government/statistics/vehicle-licensing-statistics-2018">
-                    the UK Government's vehicle licensing statistics
-                </a>.</p>
-                <p> Data for the average carbon intensity of a transatlantic flight comes from
-                </p>
-
+                    each journey is equivalent to.</p>
 
             </div>
         </div>
-    </div>
+        <div class="container">
+            <div class="columns is-centered">
+                <div class="column is-three-quarters">
+                    <h1 class="subtitle"> How we calculate carbon emissions</h1>
+                    <p> The data for average car emissions comes from <a
+                            href="https://www.gov.uk/government/statistics/vehicle-licensing-statistics-2018">
+                        the UK Government's vehicle licensing statistics
+                    </a>.</p>
+                    <p> Data for the average carbon intensity of a transatlantic flight comes from
+                        <a href="https://www.carbonindependent.org/22.html">Carbon Independent</a>.
+                    </p>
+
+                    <p> If you're interested in more details, you can find them in the <a
+                            href="https://github.com/archydeberker/route-carbon-calculator"> source
+                        code</a>.</p>
+                </div>
+            </div>
+        </div>
 </section>
 
 <script>
