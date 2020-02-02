@@ -74,16 +74,48 @@
             <div class="message-body">
                 {{ error.message }}
                 <br>
-                 <article class="message">
-                      <div class="message-body">
-                {{ error.details }}
-                          {{ error.payload }}
-                      </div>
+                <article class="message">
+                    <div class="message-body">
+                        {{ error.details }}
+                        {{ error.payload }}
+                    </div>
 
-                 </article>
+                </article>
             </div>
         </article>
         {% endif %}
+    </div>
+</section>
+
+<section class="section">
+    <div class="container">
+        <div class="columns is-centered">
+            <div class="column is-three-quarters">
+                <h1 class="subtitle"> How it works</h1>
+                <p> We use the Google Maps API to figure out the distance and duration
+                    of travel between each of the points you upload in your spreadsheet.</p><br>
+
+                  <p>  We then multiply them by the average carbon intensity per km of
+                    car travel in the UK.</p> <br>
+
+                <p>And just for fun, we add in the number of translatlantic flights that
+                    each journey is equivalent to.</p><br>
+
+        </div>
+    </div>
+    <div class="container">
+        <div class="columns is-centered">
+            <div class="column is-three-quarters">
+                <h1 class="subtitle"> How we calculate carbon emissions</h1>
+                <p> The data for average car emissions comes from <a href="https://www.gov.uk/government/statistics/vehicle-licensing-statistics-2018">
+                    the UK Government's vehicle licensing statistics
+                </a>.</p>
+                <p> Data for the average carbon intensity of a transatlantic flight comes from
+                </p>
+
+
+            </div>
+        </div>
     </div>
 </section>
 

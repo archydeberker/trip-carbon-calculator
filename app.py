@@ -54,7 +54,5 @@ def handle_upload():
 
     return send_file(temp.name, as_attachment=True, attachment_filename='processed.xls')
 
-
-
 if __name__ == "__main__":
     app.run(debug=True)
