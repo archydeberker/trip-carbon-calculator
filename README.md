@@ -7,6 +7,7 @@ and retrieve a modified Excel with the following information added:
 - Distance to drive between destinations
 - CO2 emissions for the journey, using UK average emissions data
 from the [gov.uk]( https://www.gov.uk/government/statistics/vehicle-licensing-statistics-2018)
+- The number of transatlantic flights to which your trip is equivalent, in terms of CO2 emissions
 
 All route planning is done via the Google Maps [Distance Matrix API](https://developers.google.com/maps/documentation/distance-matrix/start).
 
