@@ -36,13 +36,17 @@ def handle_upload():
     try:
         data = request.files['data']
 
-        df = actions.parse_uploaded_file(data)
+        original_df = actions.parse_uploaded_file(data)
 
-        df = google.add_trip_data_to_dataframe(df)
+        df = google.add_trip_data_to_dataframe(original_df.copy())
+
+        output_df = google.combine_with_original_dataframe(original_df, df)
+
+        assert len(output_df) == len(original_df)
 
         temp = tempfile.NamedTemporaryFile(suffix='.xls')
 
-        df.to_excel(temp.name)
+        output_df.to_excel(temp.name)
 
     except Exception as e:
         raise e

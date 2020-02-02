@@ -37,6 +37,14 @@ def add_trip_data_to_dataframe(df, factorize=True):
     return pd.concat(out)
 
 
+def combine_with_original_dataframe(input, output):
+    """The user may have included duplicates in their input. These will have been lost
+    in the output as a result of the factorization process. We therefore need to join
+    input to output"""
+
+    return input.merge(output, on=['from', 'to'], how='left')
+
+
 def unpack_distance_mtx_rows(distance_matrix):
     # Returned object is organized by FROM, with each element in the response corresponding to TO
     # To convert it into the same format as the dataframe we have to unzip that
@@ -77,9 +85,6 @@ def factorize_locations(df):
             out.append(i)
 
     factorized_df = gb_from.append(out)
-
-    # Check that we're not missing anything
-    assert len(factorized_df.explode('from').explode('to')) == len(df)
 
     return factorized_df
 
