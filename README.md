@@ -1,4 +1,4 @@
-# Trip CO2 Estimator
+# 🚗 Trip CO2 Estimator
 
 This small webapp and API allows you to upload
 an Excel file with two columns - Origins and Destinations - 
