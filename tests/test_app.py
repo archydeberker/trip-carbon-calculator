@@ -4,7 +4,7 @@ import pytest
 
 import actions
 import co2
-import google
+from mapping import google
 
 df_with_factors = pd.DataFrame(data=[['Bristol, UK', 'Bath, UK'], ['London, UK', 'London, UK']],
                   index=['from', 'to']).T

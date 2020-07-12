@@ -1,11 +1,27 @@
 import googlemaps
 import os
 import pandas as pd
-
+import requests
+import streamlit as st
 import actions
 
 KEY = os.getenv('GOOGLE_MAPS_API_KEY')
 gmaps = googlemaps.Client(key=KEY)
+
+
+@st.cache
+def call_geocoding_api(place):
+    req = f"https://maps.googleapis.com/maps/api/geocode/json?address={place}&key={KEY}"
+    response = requests.get(req)
+    return response.json()
+
+
+def get_lat_lon_for_place(place: str):
+    response = call_geocoding_api(place)
+    location = response['results'][0]['geometry']['location']
+    lat, lon = location['lat'], location['lng']
+
+    return lat, lon
 
 
 def get_distance_matrix_for_row(row):

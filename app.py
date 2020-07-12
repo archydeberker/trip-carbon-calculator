@@ -1,10 +1,9 @@
 import actions
-from flask import Flask, request, render_template, url_for, redirect, send_file, after_this_request, \
-    jsonify
+from flask import Flask, request, render_template, send_file, after_this_request
 import tempfile
 import traceback
 import exceptions
-import google
+from mapping import google
 
 app = Flask(__name__)
 
