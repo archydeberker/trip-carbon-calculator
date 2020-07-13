@@ -19,49 +19,28 @@
                 </h1>
                 </p>
                 <p class="subtitle">
-                    Estimate carbon emissions for trips between locations, in bulk!
+                    Estimate carbon emissions for trips between locations, in bulk
                 </p>
             </div>
         </div>
-        <div class="container">
-            <div class="columns is-centered">
-                <div class="column is-three-quarters has-text-centered">
-                    <p >Upload a Excel file with two columns:
-                        <em>from</em>
-                        and <em>to</em>. Each row should contain a single trip, and every cell
-                        should contain an location that is findable on Google Maps.
-                        </p>
-
-                    <form action="/api/handle-upload" method="post" enctype="multipart/form-data" class="mt-4">
-
-                        <div id='file-js-example has-text-centered' class="file"
-                             style="text-align: center; display: inline-block">
-                            <div>
-                                <label class="file-label">
-                                    <input class="file-input" type="file" name="data">
-                                    <span class="file-cta">
-                                  <span class="file-icon">
-                                    <i class="fas fa-upload"></i>
-                                  </span>
-                                  <span class="file-label">
-                                    Choose a file…
-                                  </span>
-                                </span>
-                                    <span class="file-name">
-                                No file selected
-                            </span>
-                                </label>
-                                <input class="button is-primary mt-4" type="submit" value="Submit">
-                            </div>
-                        </div>
-                        <br>
-
-                    </form>
-                </div>
-            </div>
+        <div class="container" id="content">
+            {% block content %}{% endblock %}
         </div>
     </div>
 </section>
+
+{% block javascript %}
+<script>
+    const fileInput = document.querySelector('#file-js-example input[type=file]');
+    fileInput.onchange = () => {
+        if (fileInput.files.length > 0) {
+            const fileName = document.querySelector('#file-js-example .file-name');
+            fileName.textContent = fileInput.files[0].name;
+        }
+    }
+
+</script>
+{% endblock %}
 
 <section>
     <div class="container">
@@ -133,18 +112,6 @@
         </div>
     </div>
 </section>
-
-<script>
-    const fileInput = document.querySelector('#file-js-example input[type=file]');
-    fileInput.onchange = () => {
-        if (fileInput.files.length > 0) {
-            const fileName = document.querySelector('#file-js-example .file-name');
-            fileName.textContent = fileInput.files[0].name;
-        }
-    }
-
-
-</script>
 
 <section>
     <footer class="footer" style="bottom: 0; width: 100%; padding-bottom: 20px; ">
