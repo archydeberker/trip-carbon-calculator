@@ -5,7 +5,7 @@ import numpy as np
 
 
 def parse_uploaded_file(data):
-    columns = ['from', 'to']
+    columns = ['from', 'to', 'count']
     try:
         df = pd.read_excel(data, columns=columns)
         df.columns = df.columns.str.lower()
@@ -13,9 +13,9 @@ def parse_uploaded_file(data):
         print(e)
         raise exceptions.InvalidFile(str(e))
 
-    if not np.array_equal(df.columns, ['from', 'to']):
+    if not np.array_equal(df.columns, ['from', 'to']) or np.array_equal(df.columns, ['from', 'to', 'count']) :
         raise exceptions.InvalidFile('''
-            Please make sure your excel format has two columns 'from' and 'to'!
+            Please make sure your excel includes the columns 'from' and 'to', with optional 'count'!
             ''')
     return df
 

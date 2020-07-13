@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Your Results</title>
+    <head>
+        <meta charset="UTF-8">
+        <title>Route Carbon Calculator</title>
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.8.0/css/bulma.min.css">
+        <script defer src="https://use.fontawesome.com/releases/v5.3.1/js/all.js"></script>
+
+    </head>
+<body>
+<section class="hero">
+    <div class="hero-body">
+        <div class="container">
+            <form action="/api/download-results" method="get" enctype="multipart/form-data">
+                <input class="button is-primary" type="submit" value="Download">
+            </form>
+            <div style="maxWidth:500px !important">
+                {{map|safe}}
+            </div>
+        </div>
+    </div>
+</section>
+</body>
+</html>
