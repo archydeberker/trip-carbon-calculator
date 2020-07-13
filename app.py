@@ -41,12 +41,13 @@ def handle_upload():
         data = request.files['data']
 
         original_df = actions.parse_uploaded_file(data)
+        assert 'count' in original_df
 
         df = google.add_trip_data_to_dataframe(original_df.copy())
+        df = google.combine_with_original_dataframe(original_df, df)
+        df = google.multiply_measures_by_count(df)
 
-        output_df = google.combine_with_original_dataframe(original_df, df)
-
-        assert len(output_df) == len(original_df)
+        assert len(df) == len(original_df)
 
     except Exception as e:
         raise e
@@ -54,7 +55,7 @@ def handle_upload():
     df = maps.add_coords_to_df(df)
     session["data"] = df.to_json(orient='records')
 
-    return render_template('results.html', total_co2=f"{df['emissions (kg CO2)'].sum():.2f}",
+    return render_template('results.html', total_co2=f"{df['total emissions (kg CO2)'].sum():.2f}",
                            map=maps.clean_html(maps.plot_3d_map(df).to_html(as_string=True,
                                                                             iframe_width=800,
                                                                             iframe_height=800,
@@ -66,6 +67,7 @@ def handle_upload():
 def download_results():
     data = session.get('data')
     df = pd.read_json(data, dtype=False)
+    df = actions.format_data_for_download(df)
     temp = tempfile.NamedTemporaryFile(suffix='.xls')
     df.to_excel(temp.name, index=False)
 

@@ -1,11 +1,10 @@
 import pydeck as pdk
-from matplotlib import pyplot as plt
+from mapping import google
 
 LONDON = [51.50, -0.12]
 
 
 def add_coords_to_df(df):
-    from mapping import google
     df['from_lat'], df['from_lon'] = zip(*df['from'].apply(google.get_lat_lon_for_place))
     df['to_lat'], df['to_lon'] = zip(*df['to'].apply(google.get_lat_lon_for_place))
 
@@ -17,9 +16,9 @@ def plot_3d_map(df):
     Plots a map with a dot at latitude `x` with longitude `y` and height `z`
     """
     df = df.copy()
-    df['count'] = df.get('count') or 1
-    df['distance'] = df['distances by car (km)'].apply(lambda x: f"{x:.2f}")
-    df['total_emissions'] = df['emissions (kg CO2)'] * df['count']
+    print(df)
+    df['distance'] = df['distance by car (km)'].apply(lambda x: f"{x:.2f}")
+    df['total_emissions'] = df['total emissions (kg CO2)']
     df['total_emissions'] = df['total_emissions'].apply(lambda x: f"{x:.2f}")
     geojson = pdk.Layer(
         'ArcLayer',
