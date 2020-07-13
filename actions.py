@@ -13,7 +13,7 @@ def parse_uploaded_file(data):
         print(e)
         raise exceptions.InvalidFile(str(e))
 
-    if not np.array_equal(df.columns, ['from', 'to']) or np.array_equal(df.columns, ['from', 'to', 'count']) :
+    if not np.array_equal(df.columns, ['from', 'to']) and not np.array_equal(df.columns, ['from', 'to', 'count']) :
         raise exceptions.InvalidFile('''
             Please make sure your excel includes the columns 'from' and 'to', with optional 'count'!
             ''')

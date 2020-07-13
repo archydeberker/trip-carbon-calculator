@@ -30,6 +30,11 @@ def handle_unknown_error(e):
     return render_template('file_upload.html', error=error.to_dict())
 
 
+@app.route('/base')
+def base():
+    return render_template('base.html')
+
+
 @app.route('/api/handle-upload', methods=['GET', 'POST'])
 def handle_upload():
     try:

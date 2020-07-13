@@ -19,20 +19,19 @@ def plot_3d_map(df):
     df = df.copy()
     df['count'] = df.get('count') or 1
     df['distance'] = df['distances by car (km)'].apply(lambda x: f"{x:.2f}")
-    df['total_emissions'] = df['emissions (kg CO2)'].apply(lambda x: f"{x:.2f}")
-
+    df['total_emissions'] = df['emissions (kg CO2)'] * df['count']
+    df['total_emissions'] = df['total_emissions'].apply(lambda x: f"{x:.2f}")
     geojson = pdk.Layer(
         'ArcLayer',
         get_source_position=["from_lon", "from_lat"],
         get_target_position=["to_lon", "to_lat"],
         get_source_color='[count, 0, 255-count , 255]',
         get_target_color='[count, 0, 255-count, 255]',
-        stroke_width=1000,
+        stroke_width=10,
         data=df,
         opacity=0.6,
         get_normal=[0, 0, 15],
         auto_highlight=True,
-        point_size=10,
         pickable=True,
         tooltip=True,
     )
@@ -40,7 +39,7 @@ def plot_3d_map(df):
     view_state = pdk.ViewState(
         longitude=LONDON[1],
         latitude=LONDON[0],
-        zoom=3,
+        zoom=5,
         min_zoom=5,
         max_zoom=15,
         pitch=89,
