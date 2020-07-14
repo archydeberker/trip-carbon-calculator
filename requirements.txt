@@ -71,3 +71,4 @@ whichcraft==0.6.1
 xlrd==1.2.0
 xlwt==1.3.0
 zipp==2.1.0
+streamlit
