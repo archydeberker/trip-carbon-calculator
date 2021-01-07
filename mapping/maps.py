@@ -1,3 +1,5 @@
+import os
+
 import pydeck as pdk
 from mapping import google
 
@@ -16,7 +18,6 @@ def plot_3d_map(df):
     Plots a map with a dot at latitude `x` with longitude `y` and height `z`
     """
     df = df.copy()
-    print(df)
     df['distance'] = df['distance by car (km)'].apply(lambda x: f"{x:.2f}")
     df['total_emissions'] = df['total emissions (kg CO2)']
     df['total_emissions'] = df['total_emissions'].apply(lambda x: f"{x:.2f}")
@@ -46,6 +47,7 @@ def plot_3d_map(df):
 
     return pdk.Deck(map_style='mapbox://styles/mapbox/light-v9',
                     initial_view_state=view_state,
+                    mapbox_key=os.environ.get('MAPBOX_API_KEY'),
                     layers=[geojson],
                     tooltip={
                         "html": "<b>Distance:</b> {distance} km<br/>"

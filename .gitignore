@@ -114,7 +114,7 @@ venv.bak/
 .spyderproject
 .spyproject
 
-# Rope project settings√
+# Rope project settings
 .ropeproject
 
 # mkdocs documentation
@@ -132,4 +132,4 @@ dmypy.json
 .idea
 
 carbon-env
-trip-venv
+trip-env
