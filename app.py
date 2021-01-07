@@ -8,6 +8,7 @@ from flask import Flask, request, render_template, send_file, after_this_request
 import tempfile
 import traceback
 import exceptions
+import logging
 from mapping import google, maps
 
 load_dotenv()
@@ -16,9 +17,12 @@ app = Flask(__name__)
 app.secret_key = os.urandom(28)
 GA_TRACKING_ID = os.environ.get("GA_TRACKING_ID")
 
+logging.basicConfig(level=logging.INFO)
+
 
 @app.route("/")
 def upload_page():
+    logging.info('Visitor to homepage')
     return render_template("file_upload.html", GA_TRACKING_ID=GA_TRACKING_ID)
 
 
@@ -59,6 +63,8 @@ def handle_upload():
     df = maps.add_coords_to_df(df)
     session["data"] = df.to_json(orient="records")
 
+    logging.info('Uploaded file successfully handled')
+
     return render_template(
         "results.html",
         total_co2=f"{df['total emissions (kg CO2)'].sum():.2f}",
@@ -76,6 +82,8 @@ def download_results():
     df = actions.format_data_for_download(df)
     temp = tempfile.NamedTemporaryFile(suffix=".xls")
     df.to_excel(temp.name, index=False)
+
+    logging.info('File download successful')
 
     @after_this_request
     def teardown(response):

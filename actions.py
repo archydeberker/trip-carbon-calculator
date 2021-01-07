@@ -2,6 +2,7 @@ import pandas as pd
 import co2
 import exceptions
 import numpy as np
+import logging
 
 
 def parse_uploaded_file(data):
@@ -10,10 +11,11 @@ def parse_uploaded_file(data):
         df = pd.read_excel(data, columns=columns)
         df.columns = df.columns.str.lower()
     except Exception as e:
-        print(e)
+        logging.critical(e)
         raise exceptions.InvalidFile(str(e))
 
-    if not np.array_equal(df.columns, ['from', 'to']) and not np.array_equal(df.columns, ['from', 'to', 'count']) :
+    if not np.array_equal(df.columns, ['from', 'to']) and not np.array_equal(df.columns, ['from', 'to', 'count']):
+        logging.critical('Invalid file error')
         raise exceptions.InvalidFile('''
             Please make sure your excel includes the columns 'from' and 'to', with optional 'count'!
             ''')
