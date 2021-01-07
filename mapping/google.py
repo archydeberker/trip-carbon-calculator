@@ -73,7 +73,6 @@ def combine_with_original_dataframe(input, output):
     """The user may have included duplicates in their input. These will have been lost
     in the output as a result of the factorization process. We therefore need to join
     input to output"""
-    print(input)
     return input.merge(output, on=['from', 'to'], how='left')
 
 
