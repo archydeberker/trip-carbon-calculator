@@ -62,12 +62,12 @@ def handle_upload():
 
     df = maps.add_coords_to_df(df)
     session["data"] = df.to_json(orient="records")
-
-    logging.info('Uploaded file successfully handled')
+    total_co2 = df['total emissions (kg CO2)'].sum()
+    logging.info(f'Uploaded file successfully handled, total CO2 {total_co2:.2f}')
 
     return render_template(
         "results.html",
-        total_co2=f"{df['total emissions (kg CO2)'].sum():.2f}",
+        total_co2=f"{total_co2:.2f}",
         map=maps.clean_html(
             maps.plot_3d_map(df).to_html(as_string=True, iframe_width=800, iframe_height=800, notebook_display=False)
         ),

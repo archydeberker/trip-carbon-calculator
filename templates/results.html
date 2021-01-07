@@ -2,7 +2,7 @@
 {% block content %}
 <section class="hero">
     <div class="hero-body has-text-centered">
-        <p class="title is-3"> Your trips correspond to {{total_co2}} kg of CO2</p>
+        <p class="title is-3"> Your trips correspond to {{total_co2}} kg of CO<sub>2</sub></p>
         <div class="container ">
             <form action="/api/download-results" method="get" enctype="multipart/form-data">
                 <input class="button is-primary" type="submit" value="Download results">
