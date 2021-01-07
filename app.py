@@ -1,12 +1,16 @@
+import os
+
+import pandas as pd
+
 import actions
-from flask import Flask, request, render_template, url_for, redirect, send_file, after_this_request, \
-    jsonify
+from flask import Flask, request, render_template, send_file, after_this_request, session
 import tempfile
 import traceback
 import exceptions
-import google
+from mapping import google, maps
 
 app = Flask(__name__)
+app.secret_key = os.urandom(28)
 
 
 @app.route('/')
@@ -26,25 +30,46 @@ def handle_unknown_error(e):
     return render_template('file_upload.html', error=error.to_dict())
 
 
+@app.route('/base')
+def base():
+    return render_template('base.html')
+
+
 @app.route('/api/handle-upload', methods=['GET', 'POST'])
 def handle_upload():
     try:
         data = request.files['data']
 
         original_df = actions.parse_uploaded_file(data)
+        assert 'count' in original_df
 
         df = google.add_trip_data_to_dataframe(original_df.copy())
+        df = google.combine_with_original_dataframe(original_df, df)
+        df = google.multiply_measures_by_count(df)
 
-        output_df = google.combine_with_original_dataframe(original_df, df)
-
-        assert len(output_df) == len(original_df)
-
-        temp = tempfile.NamedTemporaryFile(suffix='.xls')
-
-        output_df.to_excel(temp.name, index=False)
+        assert len(df) == len(original_df)
 
     except Exception as e:
         raise e
+
+    df = maps.add_coords_to_df(df)
+    session["data"] = df.to_json(orient='records')
+
+    return render_template('results.html', total_co2=f"{df['total emissions (kg CO2)'].sum():.2f}",
+                           map=maps.clean_html(maps.plot_3d_map(df).to_html(as_string=True,
+                                                                            iframe_width=800,
+                                                                            iframe_height=800,
+                                                                            notebook_display=False
+                                                                            )))
+
+
+@app.route('/api/download-results', methods=['GET'])
+def download_results():
+    data = session.get('data')
+    df = pd.read_json(data, dtype=False)
+    df = actions.format_data_for_download(df)
+    temp = tempfile.NamedTemporaryFile(suffix='.xls')
+    df.to_excel(temp.name, index=False)
 
     @after_this_request
     def teardown(response):

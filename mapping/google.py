@@ -1,11 +1,27 @@
 import googlemaps
 import os
 import pandas as pd
-
+import requests
+import streamlit as st
 import actions
 
 KEY = os.getenv('GOOGLE_MAPS_API_KEY')
 gmaps = googlemaps.Client(key=KEY)
+
+
+@st.cache
+def call_geocoding_api(place):
+    req = f"https://maps.googleapis.com/maps/api/geocode/json?address={place}&key={KEY}"
+    response = requests.get(req)
+    return response.json()
+
+
+def get_lat_lon_for_place(place: str):
+    response = call_geocoding_api(place)
+    location = response['results'][0]['geometry']['location']
+    lat, lon = location['lat'], location['lng']
+
+    return lat, lon
 
 
 def get_distance_matrix_for_row(row):
@@ -35,14 +51,29 @@ def add_trip_data_to_dataframe(df, factorize=True):
         exploded_df = actions.add_flight_equivalent_to_df(exploded_df)
         out.append(exploded_df)
 
-    return pd.concat(out)
+    out_df = pd.concat(out)
+
+    return out_df
+
+
+def multiply_measures_by_count(df,
+                               distance_column_name='distance by car (km)',
+                               co2_column_name='emissions (kg CO2)',
+                               time_column_name='time by car (hours)',
+                               total_prefix='total'
+                               ):
+
+    for col in [distance_column_name, time_column_name, co2_column_name]:
+        df[' '.join((total_prefix, col))] = df[col] * df['count']
+
+    return df
 
 
 def combine_with_original_dataframe(input, output):
     """The user may have included duplicates in their input. These will have been lost
     in the output as a result of the factorization process. We therefore need to join
     input to output"""
-
+    print(input)
     return input.merge(output, on=['from', 'to'], how='left')
 
 

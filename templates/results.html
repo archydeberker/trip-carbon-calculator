@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="hero">
+    <div class="hero-body has-text-centered">
+        <p class="title is-3"> Your trips correspond to {{total_co2}} kg of CO2</p>
+        <div class="container ">
+            <form action="/api/download-results" method="get" enctype="multipart/form-data">
+                <input class="button is-primary" type="submit" value="Download results">
+            </form>
+        </div>
+    </div>
+</section>
+
+<section class="section">
+    <div style="maxWidth:500px !important">
+        {{map|safe}}
+    </div>
+</section>
+{% endblock %}
