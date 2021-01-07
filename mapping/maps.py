@@ -1,3 +1,5 @@
+import os
+
 import pydeck as pdk
 from mapping import google
 
@@ -46,6 +48,7 @@ def plot_3d_map(df):
 
     return pdk.Deck(map_style='mapbox://styles/mapbox/light-v9',
                     initial_view_state=view_state,
+                    mapbox_key=os.environ.get('MAPBOX_TOKEN'),
                     layers=[geojson],
                     tooltip={
                         "html": "<b>Distance:</b> {distance} km<br/>"
