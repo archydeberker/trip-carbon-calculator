@@ -4,7 +4,7 @@ import pandas as pd
 from dotenv import load_dotenv
 
 import actions
-from flask import Flask, request, render_template, send_file, after_this_request, session
+from flask import Flask, request, render_template, send_file, after_this_request, session, send_from_directory
 import tempfile
 import traceback
 import exceptions
@@ -93,5 +93,9 @@ def download_results():
     return send_file(temp.name, as_attachment=True, attachment_filename="processed.xls")
 
 
+@app.route('/favicon.ico')
+def favicon():
+    return send_from_directory(os.path.join(app.root_path, 'static'),
+                               'favicon.ico', mimetype='image/vnd.microsoft.icon')
 if __name__ == "__main__":
     app.run(debug=True)
