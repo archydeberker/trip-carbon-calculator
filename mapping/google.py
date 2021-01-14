@@ -1,3 +1,7 @@
+import logging
+from typing import List
+import numpy as np
+
 import googlemaps
 import os
 import pandas as pd
@@ -5,9 +9,10 @@ import requests
 import streamlit as st
 import actions
 
-KEY = os.getenv('GOOGLE_MAPS_API_KEY')
+KEY = os.getenv("GOOGLE_MAPS_API_KEY")
 gmaps = googlemaps.Client(key=KEY)
 
+logging.basicConfig(level=logging.INFO)
 
 @st.cache
 def call_geocoding_api(place):
@@ -18,14 +23,38 @@ def call_geocoding_api(place):
 
 def get_lat_lon_for_place(place: str):
     response = call_geocoding_api(place)
-    location = response['results'][0]['geometry']['location']
-    lat, lon = location['lat'], location['lng']
+    location = response["results"][0]["geometry"]["location"]
+    lat, lon = location["lat"], location["lng"]
 
     return lat, lon
 
 
+def combine_distance_matrix_results(results: List[dict]):
+    """
+    Combine a series of distane matrix results into one
+    """
+    out = results[0]
+    for other_results in results[1:]:
+        for key, value in other_results.items():
+            out[key] += value
+    return out
+
+
 def get_distance_matrix_for_row(row):
-    return gmaps.distance_matrix(row['from'], row['to'])
+    n_from = len(row["from"])
+    if n_from >= 25:
+        logging.info(f"Length of origins is {n_from}, splitting up call")
+        results = []
+        for idx in range(0, n_from, 25):
+            end = np.min((idx + 25, n_from))
+            results.append(gmaps.distance_matrix(row["from"][idx:end], row["to"]))
+
+        mtx = combine_distance_matrix_results(results)
+        assert len(mtx['origin_addresses']) == len(row['from'])
+    else:
+        mtx = gmaps.distance_matrix(row["from"], row["to"])
+
+    return mtx
 
 
 def add_trip_data_to_dataframe(df, factorize=True):
@@ -42,7 +71,7 @@ def add_trip_data_to_dataframe(df, factorize=True):
         distance_matrix = get_distance_matrix_for_row(row)
 
         # We now need to explode the factorized df to add back in the values
-        exploded_df = pd.DataFrame(row).T.explode('from').explode('to')
+        exploded_df = pd.DataFrame(row).T.explode("from").explode("to")
         distance_list = unpack_distance_mtx_rows(distance_matrix)
 
         exploded_df = actions.add_distances_to_df(exploded_df, distance_list)
@@ -56,15 +85,16 @@ def add_trip_data_to_dataframe(df, factorize=True):
     return out_df
 
 
-def multiply_measures_by_count(df,
-                               distance_column_name='distance by car (km)',
-                               co2_column_name='emissions (kg CO2)',
-                               time_column_name='time by car (hours)',
-                               total_prefix='total'
-                               ):
+def multiply_measures_by_count(
+    df,
+    distance_column_name="distance by car (km)",
+    co2_column_name="emissions (kg CO2)",
+    time_column_name="time by car (hours)",
+    total_prefix="total",
+):
 
     for col in [distance_column_name, time_column_name, co2_column_name]:
-        df[' '.join((total_prefix, col))] = df[col] * df['count']
+        df[" ".join((total_prefix, col))] = df[col] * df["count"]
 
     return df
 
@@ -73,39 +103,39 @@ def combine_with_original_dataframe(input, output):
     """The user may have included duplicates in their input. These will have been lost
     in the output as a result of the factorization process. We therefore need to join
     input to output"""
-    return input.merge(output, on=['from', 'to'], how='left')
+    return input.merge(output, on=["from", "to"], how="left")
 
 
 def unpack_distance_mtx_rows(distance_matrix):
     # Returned object is organized by FROM, with each element in the response corresponding to TO
     # To convert it into the same format as the dataframe we have to unzip that
     out = []
-    for _from in distance_matrix['rows']:
-        for _to in _from['elements']:
+    for _from in distance_matrix["rows"]:
+        for _to in _from["elements"]:
             out.append(_to)
 
     return out
 
 
-def filter_for_multiples(df, key='from'):
+def filter_for_multiples(df, key="from"):
     multiple_records = df.apply(lambda x: len(x[key]) > 1, axis=1)
 
     return df.loc[multiple_records]
 
 
 def factorize_locations(df):
-    gb_from = df.groupby(['from'])['to'].unique().reset_index()
-    gb_to = df.groupby(['to'])['from'].unique().reset_index()
+    gb_from = df.groupby(["from"])["to"].unique().reset_index()
+    gb_to = df.groupby(["to"])["from"].unique().reset_index()
 
     # Drop all non-grouped locations from gb_from
-    gb_from = filter_for_multiples(gb_from, key='to')
+    gb_from = filter_for_multiples(gb_from, key="to")
 
     # Now figure out which ones we want from gb_to
     out = []
     for _, i in gb_to.iterrows():
-        if len(i['from']) == 1:
-            _from = i['from'][0]
-            if _from in gb_from['from'].values:
+        if len(i["from"]) == 1:
+            _from = i["from"][0]
+            if _from in gb_from["from"].values:
                 # We already have it
                 pass
             else:
@@ -136,7 +166,6 @@ def group_queries(df):
     return df
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     df = pd.DataFrame()
     print(add_trip_data_to_dataframe())
-
