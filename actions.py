@@ -1,18 +1,27 @@
+from typing import List
+
 import pandas as pd
 import co2
 import exceptions
 import numpy as np
 import logging
 
+from flask import session
+
+
+def store_output_in_session(data):
+    session['data'] = data
+
 
 def parse_uploaded_file(data):
-    columns = ['from', 'to', 'count']
     try:
-        df = pd.read_excel(data, columns=columns)
+        df = pd.read_excel(data)
         df.columns = df.columns.str.lower()
     except Exception as e:
         logging.critical(e)
         raise exceptions.InvalidFile(str(e))
+
+    df = df.filter(items=['from', 'to', 'count'], axis=1)
 
     if not np.array_equal(df.columns, ['from', 'to']) and not np.array_equal(df.columns, ['from', 'to', 'count']):
         logging.critical('Invalid file error')
@@ -27,7 +36,21 @@ def parse_uploaded_file(data):
     return df
 
 
+def validate_distance_matrix_results(distance_list: List, df: pd.DataFrame):
+    for i, item in enumerate(distance_list):
+        try:
+            assert 'distance' in item
+        except AssertionError:
+            logging.warning(f'Problem getting a distance for row {df.iloc[i]}')
+            logging.warning(item)
+            logging.warning(df.iloc[i])
+
+            distance_list[i] = {'distance': {'value': np.nan}, 'duration': {'value': np.nan} }
+
+
 def add_distances_to_df(df, distance_list, column_name='distance by car (km)'):
+
+    validate_distance_matrix_results(distance_list, df)
 
     all_distances_in_km = [item['distance']['value'] / 1000
                            for item in distance_list]

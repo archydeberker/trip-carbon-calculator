@@ -60,8 +60,10 @@ def handle_upload():
     except Exception as e:
         raise e
 
+    logging.info('Adding coords from Google')
     df = maps.add_coords_to_df(df)
-    session["data"] = df.to_json(orient="records")
+    logging.info('Coords finished')
+    actions.store_output_in_session(df.to_json(orient="records"))
     total_co2 = df['total emissions (kg CO2)'].sum()
     logging.info(f'Uploaded file successfully handled, total CO2 {total_co2:.2f}')
 
@@ -97,5 +99,7 @@ def download_results():
 def favicon():
     return send_from_directory(os.path.join(app.root_path, 'static'),
                                'favicon.ico', mimetype='image/vnd.microsoft.icon')
+
+
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(debug=True, use_reloader=False)

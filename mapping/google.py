@@ -1,4 +1,5 @@
 import logging
+from multiprocessing import cpu_count, Pool
 from typing import List
 import numpy as np
 
@@ -8,6 +9,7 @@ import pandas as pd
 import requests
 import streamlit as st
 import actions
+
 
 KEY = os.getenv("GOOGLE_MAPS_API_KEY")
 gmaps = googlemaps.Client(key=KEY)
@@ -44,12 +46,18 @@ def get_distance_matrix_for_row(row):
     n_from = len(row["from"])
     if n_from >= 25:
         logging.info(f"Length of origins is {n_from}, splitting up call")
-        results = []
+        inputs = []
+        p = Pool(cpu_count()-1)
         for idx in range(0, n_from, 25):
             end = np.min((idx + 25, n_from))
-            results.append(gmaps.distance_matrix(row["from"][idx:end], row["to"]))
+            inputs.append((row["from"][idx:end], row["to"]))
+
+        results = p.starmap(gmaps.distance_matrix,  inputs)
+
+        logging.info('Retrieval from google complete')
 
         mtx = combine_distance_matrix_results(results)
+
         assert len(mtx['origin_addresses']) == len(row['from'])
     else:
         mtx = gmaps.distance_matrix(row["from"], row["to"])
@@ -79,6 +87,8 @@ def add_trip_data_to_dataframe(df, factorize=True):
         exploded_df = actions.add_carbon_estimates_to_df(exploded_df)
         exploded_df = actions.add_flight_equivalent_to_df(exploded_df)
         out.append(exploded_df)
+
+    logging.info('All API calls complete')
 
     out_df = pd.concat(out)
 
