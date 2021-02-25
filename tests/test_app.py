@@ -1,6 +1,5 @@
 import io
 from pathlib import Path
-
 import pytest
 from flask import session
 
@@ -37,7 +36,6 @@ def test_upload_page(client):
 
 
 class TestFileFlow:
-
     def test_handle_upload_big_file(self, client, small_file, big_file):
 
         for file in [small_file, big_file]:

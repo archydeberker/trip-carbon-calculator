@@ -75,3 +75,5 @@ zipp==2.1.0
 streamlit
 python-dotenv
 pytest
+flask-session
+redis
