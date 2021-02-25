@@ -79,7 +79,7 @@ def handle_upload():
 
 @app.route("/api/download-results", methods=["GET"])
 def download_results():
-    data = session.get("data")
+    data = actions.retrieve_output_from_session()
     df = pd.read_json(data, dtype=False)
     df = actions.format_data_for_download(df)
     temp = tempfile.NamedTemporaryFile(suffix=".xls")

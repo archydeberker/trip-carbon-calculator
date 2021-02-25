@@ -8,9 +8,19 @@ import logging
 
 from flask import session
 
+import logging
+
+logger = logging.getLogger(__name__)
+
 
 def store_output_in_session(data):
+    logger.info('Placing data into session')
     session['data'] = data
+
+
+def retrieve_output_from_session():
+    logger.info('Retrieving data from session')
+    return session.get("data")
 
 
 def parse_uploaded_file(data):
