@@ -3,7 +3,7 @@ import os
 import pandas as pd
 from dotenv import load_dotenv
 
-from flask import request, render_template, send_file, after_this_request, session, send_from_directory
+from flask import after_this_request, render_template, request, send_file, send_from_directory
 from flask import Flask
 from flask_session import Session
 
@@ -20,7 +20,7 @@ load_dotenv()
 
 app = Flask(__name__)
 app.secret_key = os.urandom(28)
-app.config['SESSION_TYPE'] = 'filesystem'
+app.config["SESSION_TYPE"] = "filesystem"
 
 sess = Session()
 

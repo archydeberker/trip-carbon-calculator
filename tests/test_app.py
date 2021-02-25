@@ -54,4 +54,4 @@ class TestFileFlow:
             assert session.get("data") is not None
             download_response = client.get("/api/download-results")
 
-            assert download_response.status_code == 200 is not None
+            assert download_response.status_code == 200

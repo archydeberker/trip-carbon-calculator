@@ -7,7 +7,6 @@ import googlemaps
 import os
 import pandas as pd
 import requests
-import streamlit as st
 import actions
 
 
@@ -50,18 +49,18 @@ def get_distance_matrix_for_row(row):
     if n_from >= 25:
         logging.info(f"Length of origins is {n_from}, splitting up call")
         inputs = []
-        p = Pool(cpu_count()-1)
+        p = Pool(cpu_count() - 1)
         for idx in range(0, n_from, 25):
             end = np.min((idx + 25, n_from))
             inputs.append((row["from"][idx:end], row["to"]))
 
-        results = p.starmap(gmaps.distance_matrix,  inputs)
+        results = p.starmap(gmaps.distance_matrix, inputs)
 
-        logging.info('Retrieval from google complete')
+        logging.info("Retrieval from google complete")
 
         mtx = combine_distance_matrix_results(results)
 
-        assert len(mtx['origin_addresses']) == len(row['from'])
+        assert len(mtx["origin_addresses"]) == len(row["from"])
     else:
         mtx = gmaps.distance_matrix(row["from"], row["to"])
 
@@ -91,7 +90,7 @@ def add_trip_data_to_dataframe(df, factorize=True):
         exploded_df = actions.add_flight_equivalent_to_df(exploded_df)
         out.append(exploded_df)
 
-    logging.info('All API calls complete')
+    logging.info("All API calls complete")
 
     out_df = pd.concat(out)
 

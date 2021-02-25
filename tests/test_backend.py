@@ -99,5 +99,5 @@ class TestEndToEnd:
             expected_df.reset_index(drop=True),
             check_column_type=False,
             check_frame_type=False,
-            rtol=.5,
+            rtol=0.5,
         )
