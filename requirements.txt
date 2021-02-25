@@ -76,4 +76,3 @@ streamlit
 python-dotenv
 pytest
 flask-session
-redis
