@@ -16,7 +16,7 @@ gmaps = googlemaps.Client(key=KEY)
 
 logging.basicConfig(level=logging.INFO)
 
-@st.cache
+
 def call_geocoding_api(place):
     req = f"https://maps.googleapis.com/maps/api/geocode/json?address={place}&key={KEY}"
     response = requests.get(req)
@@ -25,15 +25,18 @@ def call_geocoding_api(place):
 
 def get_lat_lon_for_place(place: str):
     response = call_geocoding_api(place)
-    location = response["results"][0]["geometry"]["location"]
-    lat, lon = location["lat"], location["lng"]
-
+    try:
+        location = response["results"][0]["geometry"]["location"]
+        lat, lon = location["lat"], location["lng"]
+    except IndexError:
+        logging.warning(f"Failed for {place}, returning nan")
+        lat, lon = np.nan, np.nan
     return lat, lon
 
 
 def combine_distance_matrix_results(results: List[dict]):
     """
-    Combine a series of distane matrix results into one
+    Combine a series of distance matrix results into one
     """
     out = results[0]
     for other_results in results[1:]:

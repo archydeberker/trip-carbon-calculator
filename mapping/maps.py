@@ -21,6 +21,8 @@ def plot_3d_map(df):
     df['distance'] = df['distance by car (km)'].apply(lambda x: f"{x:.2f}")
     df['total_emissions'] = df['total emissions (kg CO2)']
     df['total_emissions'] = df['total_emissions'].apply(lambda x: f"{x:.2f}")
+
+    # Drop any nan rows so we don't try and map them
     geojson = pdk.Layer(
         'ArcLayer',
         get_source_position=["from_lon", "from_lat"],
@@ -28,7 +30,7 @@ def plot_3d_map(df):
         get_source_color='[count, 0, 255-count , 255]',
         get_target_color='[count, 0, 255-count, 255]',
         stroke_width=10,
-        data=df,
+        data=df.dropna(how='any'),
         opacity=0.6,
         get_normal=[0, 0, 15],
         auto_highlight=True,
@@ -47,7 +49,6 @@ def plot_3d_map(df):
 
     return pdk.Deck(map_style='mapbox://styles/mapbox/light-v9',
                     initial_view_state=view_state,
-                    mapbox_key=os.environ.get('MAPBOX_API_KEY'),
                     layers=[geojson],
                     tooltip={
                         "html": "<b>Distance:</b> {distance} km<br/>"

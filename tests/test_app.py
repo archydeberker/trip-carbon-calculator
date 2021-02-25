@@ -11,7 +11,7 @@ root = Path(__file__).parent.parent
 
 @pytest.fixture
 def client():
-    app.config['TESTING'] = True
+    app.config["TESTING"] = True
     with app.test_client() as client:
         yield client
 
@@ -33,32 +33,27 @@ def big_file():
 
 
 def test_upload_page(client):
-    assert client.get('/') is not None
+    assert client.get("/") is not None
 
 
 class TestFileFlow:
 
-    def test_handle_upload_big_file(self, client, small_file):
+    def test_handle_upload_big_file(self, client, small_file, big_file):
 
-        data = {'data': (io.BytesIO(small_file), 'test_file.xlsx')}
+        for file in [small_file, big_file]:
+            data = {"data": (io.BytesIO(file), "test_file.xlsx")}
+            response = client.post("/api/handle-upload", data=data)
 
-        response = client.post('/api/handle-upload',
-                              data=data)
+            assert response.status_code == 200
 
-        assert response.status_code == 200
+    def test_transfer_of_data_between_upload_and_download(self, client, small_file, big_file):
 
-    def test_transfer_of_data_between_upload_and_download(self, client, small_file):
-        data = {'data': (io.BytesIO(small_file), 'test_file.xlsx')}
+        for file in [small_file, big_file]:
+            data = {"data": (io.BytesIO(file), "test_file.xlsx")}
 
-        _ = client.post('/api/handle-upload',
-                                data=data)
+            _ = client.post("/api/handle-upload", data=data)
 
-        assert session.get('data') is not None
-        download_response = client.get('/api/download-results')
+            assert session.get("data") is not None
+            download_response = client.get("/api/download-results")
 
-        assert download_response.status_code == 200 is not None
-
-
-
-
-
+            assert download_response.status_code == 200 is not None
