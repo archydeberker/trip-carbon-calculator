@@ -29,6 +29,6 @@ def calculate_flight_equivalent(co2):
     kg_co2_per_hour = 90
     hr_per_flight = 8  # London to NYC
 
-    co2_per_flight = kg_co2_per_hour*hr_per_flight
+    co2_per_flight = kg_co2_per_hour * hr_per_flight
 
     return co2 / co2_per_flight

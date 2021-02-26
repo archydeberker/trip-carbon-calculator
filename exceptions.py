@@ -1,6 +1,3 @@
-from flask import jsonify
-
-
 class InvalidFile(Exception):
     status_code = 400
 
@@ -13,13 +10,15 @@ class InvalidFile(Exception):
 
     def to_dict(self):
         rv = dict(self.payload or ())
-        rv['title'] = 'Invalid file upload'
-        rv['message'] = '''
+        rv["title"] = "Invalid file upload"
+        rv[
+            "message"
+        ] = """
         It looks like you have uploaded a file which is not valid. See the error message
         below for more details.
-        '''
+        """
 
-        rv['details'] = self.message
+        rv["details"] = self.message
         return rv
 
 
@@ -35,13 +34,15 @@ class UnknownError(Exception):
 
     def to_dict(self):
         rv = dict(self.payload or ())
-        rv['title'] = 'Something went wrong'
-        rv['message'] = '''
+        rv["title"] = "Something went wrong"
+        rv[
+            "message"
+        ] = """
         Something went wrong here, and we are not sure what. You can find the details of the
         error below if you're into that sort of thing.
-        '''
+        """
 
-        rv['details'] = self.message
+        rv["details"] = self.message
         return rv
 
 
@@ -55,12 +56,14 @@ class InvalidAddressError(Exception):
 
     def to_dict(self):
         rv = dict(self.payload or ())
-        rv['title'] = 'Something went wrong'
-        rv['message'] = '''
+        rv["title"] = "Something went wrong"
+        rv[
+            "message"
+        ] = """
         One or more of the addresses in your excel file was not findable using Google Maps.
-        Please verify that all of the addresses you submitted can be found by 
-        typing them in a Google Maps search box!
-        '''
+         Please verify that all of the addresses you submitted can be found by
+         typing them in a Google Maps search box!
+        """
 
-        rv['details'] = self.message
+        rv["details"] = self.message
         return rv

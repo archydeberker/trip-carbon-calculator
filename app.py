@@ -3,26 +3,36 @@ import os
 import pandas as pd
 from dotenv import load_dotenv
 
-import actions
-from flask import Flask, request, render_template, send_file, after_this_request, session, send_from_directory
+from flask import after_this_request, render_template, request, send_file, send_from_directory
+from flask import Flask
+from flask_session import Session
+
 import tempfile
 import traceback
 import exceptions
 import logging
+
+import actions
+
 from mapping import google, maps
 
 load_dotenv()
 
 app = Flask(__name__)
 app.secret_key = os.urandom(28)
-GA_TRACKING_ID = os.environ.get("GA_TRACKING_ID")
+app.config["SESSION_TYPE"] = "filesystem"
 
+sess = Session()
+
+sess.init_app(app)
+
+GA_TRACKING_ID = os.environ.get("GA_TRACKING_ID")
 logging.basicConfig(level=logging.INFO)
 
 
 @app.route("/")
 def upload_page():
-    logging.info('Visitor to homepage')
+    logging.info("Visitor to homepage")
     return render_template("file_upload.html", GA_TRACKING_ID=GA_TRACKING_ID)
 
 
@@ -60,10 +70,12 @@ def handle_upload():
     except Exception as e:
         raise e
 
+    logging.info("Adding coords from Google")
     df = maps.add_coords_to_df(df)
-    session["data"] = df.to_json(orient="records")
-    total_co2 = df['total emissions (kg CO2)'].sum()
-    logging.info(f'Uploaded file successfully handled, total CO2 {total_co2:.2f}')
+    logging.info("Coords finished")
+    actions.store_output_in_session(df.to_json(orient="records"))
+    total_co2 = df["total emissions (kg CO2)"].sum()
+    logging.info(f"Uploaded file successfully handled, total CO2 {total_co2:.2f}")
 
     return render_template(
         "results.html",
@@ -77,13 +89,13 @@ def handle_upload():
 
 @app.route("/api/download-results", methods=["GET"])
 def download_results():
-    data = session.get("data")
+    data = actions.retrieve_output_from_session()
     df = pd.read_json(data, dtype=False)
     df = actions.format_data_for_download(df)
     temp = tempfile.NamedTemporaryFile(suffix=".xls")
     df.to_excel(temp.name, index=False)
 
-    logging.info('File download successful')
+    logging.info("File download successful")
 
     @after_this_request
     def teardown(response):
@@ -93,9 +105,12 @@ def download_results():
     return send_file(temp.name, as_attachment=True, attachment_filename="processed.xls")
 
 
-@app.route('/favicon.ico')
+@app.route("/favicon.ico")
 def favicon():
-    return send_from_directory(os.path.join(app.root_path, 'static'),
-                               'favicon.ico', mimetype='image/vnd.microsoft.icon')
+    return send_from_directory(
+        os.path.join(app.root_path, "static"), "favicon.ico", mimetype="image/vnd.microsoft.icon"
+    )
+
+
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(debug=True, use_reloader=False)

@@ -1,4 +1,5 @@
 import logging
+from multiprocessing import cpu_count, Pool
 from typing import List
 import numpy as np
 
@@ -6,15 +7,15 @@ import googlemaps
 import os
 import pandas as pd
 import requests
-import streamlit as st
 import actions
+
 
 KEY = os.getenv("GOOGLE_MAPS_API_KEY")
 gmaps = googlemaps.Client(key=KEY)
 
 logging.basicConfig(level=logging.INFO)
 
-@st.cache
+
 def call_geocoding_api(place):
     req = f"https://maps.googleapis.com/maps/api/geocode/json?address={place}&key={KEY}"
     response = requests.get(req)
@@ -23,15 +24,18 @@ def call_geocoding_api(place):
 
 def get_lat_lon_for_place(place: str):
     response = call_geocoding_api(place)
-    location = response["results"][0]["geometry"]["location"]
-    lat, lon = location["lat"], location["lng"]
-
+    try:
+        location = response["results"][0]["geometry"]["location"]
+        lat, lon = location["lat"], location["lng"]
+    except IndexError:
+        logging.warning(f"Failed for {place}, returning nan")
+        lat, lon = np.nan, np.nan
     return lat, lon
 
 
 def combine_distance_matrix_results(results: List[dict]):
     """
-    Combine a series of distane matrix results into one
+    Combine a series of distance matrix results into one
     """
     out = results[0]
     for other_results in results[1:]:
@@ -44,13 +48,19 @@ def get_distance_matrix_for_row(row):
     n_from = len(row["from"])
     if n_from >= 25:
         logging.info(f"Length of origins is {n_from}, splitting up call")
-        results = []
+        inputs = []
+        p = Pool(cpu_count() - 1)
         for idx in range(0, n_from, 25):
             end = np.min((idx + 25, n_from))
-            results.append(gmaps.distance_matrix(row["from"][idx:end], row["to"]))
+            inputs.append((row["from"][idx:end], row["to"]))
+
+        results = p.starmap(gmaps.distance_matrix, inputs)
+
+        logging.info("Retrieval from google complete")
 
         mtx = combine_distance_matrix_results(results)
-        assert len(mtx['origin_addresses']) == len(row['from'])
+
+        assert len(mtx["origin_addresses"]) == len(row["from"])
     else:
         mtx = gmaps.distance_matrix(row["from"], row["to"])
 
@@ -79,6 +89,8 @@ def add_trip_data_to_dataframe(df, factorize=True):
         exploded_df = actions.add_carbon_estimates_to_df(exploded_df)
         exploded_df = actions.add_flight_equivalent_to_df(exploded_df)
         out.append(exploded_df)
+
+    logging.info("All API calls complete")
 
     out_df = pd.concat(out)
 
