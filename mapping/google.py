@@ -32,7 +32,8 @@ def get_lat_lon_for_place(place: str):
     except IndexError:
         logging.warning(f"Failed for {place}, returning nan")
         lat, lon = np.nan, np.nan
-    return lat, lon
+
+    return {place: (lat, lon)}
 
 
 def combine_distance_matrix_results(results: List[dict]):

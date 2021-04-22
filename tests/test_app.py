@@ -3,6 +3,7 @@ from pathlib import Path
 import pytest
 from flask import session
 
+
 from app import app
 
 root = Path(__file__).parent.parent
