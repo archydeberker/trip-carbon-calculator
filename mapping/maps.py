@@ -1,3 +1,7 @@
+from multiprocessing import cpu_count
+from multiprocessing.pool import Pool
+from collections import ChainMap
+
 import pydeck as pdk
 from mapping import google
 
@@ -5,8 +9,18 @@ LONDON = [51.50, -0.12]
 
 
 def add_coords_to_df(df):
-    df["from_lat"], df["from_lon"] = zip(*df["from"].apply(google.get_lat_lon_for_place))
-    df["to_lat"], df["to_lon"] = zip(*df["to"].apply(google.get_lat_lon_for_place))
+
+    all_places = set(df["from"].unique()).union(set(df["to"].unique()))
+
+    # Process each row in parallel
+    p = Pool(cpu_count() - 1)
+    out = p.map(google.get_lat_lon_for_place, all_places)
+
+    # We get back a list of dicts, concatenate them
+    location_dict = ChainMap(*out)
+
+    df["from_lat"], df["from_lon"] = zip(*df["from"].map(location_dict))
+    df["to_lat"], df["to_lon"] = zip(*df["to"].map(location_dict))
 
     return df
 
