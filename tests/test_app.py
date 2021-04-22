@@ -36,6 +36,7 @@ def test_upload_page(client):
 
 
 class TestFileFlow:
+    @pytest.mark.skip(reason="Takes too long")
     def test_handle_upload_big_file(self, client, small_file, big_file):
 
         for file in [small_file, big_file]:

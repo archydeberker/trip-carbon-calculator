@@ -15,6 +15,7 @@ gmaps = googlemaps.Client(key=KEY)
 
 logging.basicConfig(level=logging.INFO)
 
+MAX_LOCATIONS = 25
 
 def call_geocoding_api(place):
     req = f"https://maps.googleapis.com/maps/api/geocode/json?address={place}&key={KEY}"
@@ -44,14 +45,18 @@ def combine_distance_matrix_results(results: List[dict]):
     return out
 
 
-def get_distance_matrix_for_row(row):
+def get_distance_matrix_for_row(row, max_origins=5):
+    """
+    Google supports a maximum size of 25 x 25, see
+    https://stackoverflow.com/questions/52033446/max-dimensions-exceeded-distancematrix-error
+    """
     n_from = len(row["from"])
-    if n_from >= 25:
+    if n_from >= max_origins:
         logging.info(f"Length of origins is {n_from}, splitting up call")
         inputs = []
         p = Pool(cpu_count() - 1)
-        for idx in range(0, n_from, 25):
-            end = np.min((idx + 25, n_from))
+        for idx in range(0, n_from, max_origins):
+            end = np.min((idx + max_origins, n_from))
             inputs.append((row["from"][idx:end], row["to"]))
 
         results = p.starmap(gmaps.distance_matrix, inputs)
@@ -60,7 +65,8 @@ def get_distance_matrix_for_row(row):
 
         mtx = combine_distance_matrix_results(results)
 
-        assert len(mtx["origin_addresses"]) == len(row["from"])
+        if not len(mtx["origin_addresses"]) == len(row["from"]):
+            raise ValueError
     else:
         mtx = gmaps.distance_matrix(row["from"], row["to"])
 
@@ -162,7 +168,7 @@ def factorize_locations(df):
     return factorized_df
 
 
-def group_queries(df):
+def group_queries(df, max_locations=MAX_LOCATIONS):
     """
     We want to make as few queries to the API as possible. The distance matrix does a cross-
     product of origins and destinations, so we're going to take in a dataframe and return
@@ -175,7 +181,20 @@ def group_queries(df):
 
     # Each row of this is a single API call
     df = factorize_locations(df)
-    return df
+
+    # Some rows may be too large for the Google Maps API, so we should "unfactorize" those
+    out = []
+    for _, row in df.iterrows():
+        n_from =  len(row['from'])
+        for idx in range(0, n_from, max_locations):
+            end = np.min((idx + max_locations, n_from))
+            new_row = pd.DataFrame(data=np.asarray([(row["from"][idx:end], row["to"])]),
+                                   columns=['from', 'to'])
+            out.append(new_row)
+
+    df_for_API_calls = pd.concat(out)
+
+    return df_for_API_calls
 
 
 if __name__ == "__main__":

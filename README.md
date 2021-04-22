@@ -46,3 +46,14 @@ python app.py
 You should then be able to go to http://127.0.0.1:5000 to use the frontend,
 or upload documents via POST request to http://127.0.0.1:5000/api/handle-upload.
 
+# Logic
+Typical data uploaded to this service involves many duplicate origins and destinations.
+
+To avoid many redundant calls to the distance matrix API, we first 
+factorize by destination. This allows us to make calls to the API
+where we have a single destination and all of the relevant origins.
+
+However, if there are more than 25 origins, we have a problem, because 
+Google's Distance Matrix API won't allow us to submit a query with more than 25
+locations in the rows or columns. If there are more than 25 origins for a single
+destination, we split our calls and recombine them afterwards.
