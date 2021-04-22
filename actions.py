@@ -25,7 +25,7 @@ def retrieve_output_from_session():
 def parse_uploaded_file(data):
     try:
         df = pd.read_excel(data)
-        df.columns = df.columns.str.lower()
+        df.columns = df.columns.str.lower().str.rstrip()
     except Exception as e:
         logging.critical(e)
         raise exceptions.InvalidFile(str(e))
