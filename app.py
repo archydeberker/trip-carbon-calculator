@@ -7,7 +7,6 @@ from flask import after_this_request, render_template, request, send_file, send_
 from flask import Flask
 from flask_session import Session
 
-from werkzeug.middleware.profiler import ProfilerMiddleware
 
 import tempfile
 import traceback
@@ -23,8 +22,6 @@ load_dotenv()
 app = Flask(__name__)
 app.secret_key = os.urandom(28)
 app.config["SESSION_TYPE"] = "filesystem"
-app.config['PROFILE'] = True
-app.wsgi_app = ProfilerMiddleware(app.wsgi_app, restrictions=[30])
 
 sess = Session()
 
