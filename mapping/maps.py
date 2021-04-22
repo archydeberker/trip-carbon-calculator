@@ -1,9 +1,13 @@
+import os
 from multiprocessing import cpu_count
 from multiprocessing.pool import Pool
 from collections import ChainMap
 
 import pydeck as pdk
 from mapping import google
+import logging
+
+logger = logging.getLogger(__name__)
 
 LONDON = [51.50, -0.12]
 
@@ -54,9 +58,15 @@ def plot_3d_map(df):
         longitude=LONDON[1], latitude=LONDON[0], zoom=5, min_zoom=5, max_zoom=15, pitch=89, bearing=0
     )
 
+    API_KEY = os.environ.get('MAPBOX_API_KEY')
+    if API_KEY is None:
+        logger.info(f"Mapbox API key is not set!")
+
     return pdk.Deck(
-        map_style="mapbox://styles/mapbox/light-v9",
+        map_provider='mapbox',
+        map_style="light",
         initial_view_state=view_state,
+        api_keys={'mapbox': API_KEY},
         layers=[geojson],
         tooltip={
             "html": "<b>Distance:</b> {distance} km<br/>"
