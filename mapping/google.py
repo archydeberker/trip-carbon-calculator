@@ -17,6 +17,7 @@ logging.basicConfig(level=logging.INFO)
 
 MAX_LOCATIONS = 25
 
+
 def call_geocoding_api(place):
     req = f"https://maps.googleapis.com/maps/api/geocode/json?address={place}&key={KEY}"
     response = requests.get(req)
@@ -45,32 +46,27 @@ def combine_distance_matrix_results(results: List[dict]):
     return out
 
 
-def get_distance_matrix_for_row(row, max_origins=5):
+def get_distance_matrix_for_row(row):
     """
     Google supports a maximum size of 25 x 25, see
     https://stackoverflow.com/questions/52033446/max-dimensions-exceeded-distancematrix-error
     """
-    n_from = len(row["from"])
-    if n_from >= max_origins:
-        logging.info(f"Length of origins is {n_from}, splitting up call")
-        inputs = []
-        p = Pool(cpu_count() - 1)
-        for idx in range(0, n_from, max_origins):
-            end = np.min((idx + max_origins, n_from))
-            inputs.append((row["from"][idx:end], row["to"]))
+    return gmaps.distance_matrix(row["from"], row["to"])
 
-        results = p.starmap(gmaps.distance_matrix, inputs)
 
-        logging.info("Retrieval from google complete")
+def handle_one_row(row: pd.Series):
+    distance_matrix = get_distance_matrix_for_row(row)
 
-        mtx = combine_distance_matrix_results(results)
+    # We now need to explode the factorized df to add back in the values
+    exploded_df = pd.DataFrame(row).T.explode("from").explode("to")
+    distance_list = unpack_distance_mtx_rows(distance_matrix)
 
-        if not len(mtx["origin_addresses"]) == len(row["from"]):
-            raise ValueError
-    else:
-        mtx = gmaps.distance_matrix(row["from"], row["to"])
+    exploded_df = actions.add_distances_to_df(exploded_df, distance_list)
+    exploded_df = actions.add_times_to_df(exploded_df, distance_list)
+    exploded_df = actions.add_carbon_estimates_to_df(exploded_df)
+    exploded_df = actions.add_flight_equivalent_to_df(exploded_df)
 
-    return mtx
+    return exploded_df
 
 
 def add_trip_data_to_dataframe(df, factorize=True):
@@ -82,19 +78,16 @@ def add_trip_data_to_dataframe(df, factorize=True):
     # Because the keys in the distance matrices that are returned don't exactly match
     # our initial queries, we have to handle the reconstitution in this function. We will
     # then combine our df's again
-    out = []
+
+    inputs = []
+
+    # First compile the inputs for multiprocessing; there might be a faster way to do this
     for _, row in factorized_df.iterrows():
-        distance_matrix = get_distance_matrix_for_row(row)
+        inputs.append(row)
 
-        # We now need to explode the factorized df to add back in the values
-        exploded_df = pd.DataFrame(row).T.explode("from").explode("to")
-        distance_list = unpack_distance_mtx_rows(distance_matrix)
-
-        exploded_df = actions.add_distances_to_df(exploded_df, distance_list)
-        exploded_df = actions.add_times_to_df(exploded_df, distance_list)
-        exploded_df = actions.add_carbon_estimates_to_df(exploded_df)
-        exploded_df = actions.add_flight_equivalent_to_df(exploded_df)
-        out.append(exploded_df)
+    # Process each row in parallel
+    p = Pool(cpu_count() - 1)
+    out = p.map(handle_one_row, inputs)
 
     logging.info("All API calls complete")
 
